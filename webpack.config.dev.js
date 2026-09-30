@@ -3,6 +3,7 @@ const ESLintPlugin = require('eslint-webpack-plugin');
 const webpack = require('webpack');
 const { merge } = require('webpack-merge');
 const common = require('./webpack.config.common');
+const apiTarget = process.env.API_TARGET;
 
 module.exports = () => merge(common, {
   mode: 'development',
@@ -15,6 +16,16 @@ module.exports = () => merge(common, {
     historyApiFallback: true,
     port: 9000,
     open: true,
+    ...(apiTarget ? {
+  proxy: [
+    {
+      context: ['/rest.php', '/index.php', '/session.php', '/firms'],
+      target: apiTarget,
+      secure: false,
+      changeOrigin: true,
+    },
+  ],
+} : {}),
     client: {
       logging: 'verbose',
       overlay: {
@@ -35,6 +46,7 @@ module.exports = () => merge(common, {
   plugins: [
     new webpack.DefinePlugin({
       PRODUCTION: JSON.stringify(false),
+      DEV_API_URL: JSON.stringify(apiTarget ? '/' : 'http://localhost/'),
     }),
     new ESLintPlugin({
       extensions: ['js', 'jsx'],
