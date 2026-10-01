@@ -9,6 +9,7 @@ module.exports = {
   },
   globals: {
     PRODUCTION: 'writable',
+    DEV_API_URL: 'readonly',
   },
   ignorePatterns: [
     '.eslintrc.prod.js',

@@ -35,14 +35,15 @@ module.exports = merge(common, {
     ],
   },
   plugins: [
-    new webpack.DefinePlugin({
-      PRODUCTION: JSON.stringify(true),
-    }),
-    new ESLintPlugin({
-      extensions: ['js', 'jsx'],
-      overrideConfigFile: './.eslintrc.prod.js',
-    }),
-  ],
+  new webpack.DefinePlugin({
+    PRODUCTION: JSON.stringify(true),
+    DEV_API_URL: JSON.stringify('/'),
+  }),
+  new ESLintPlugin({
+    extensions: ['js', 'jsx'],
+    overrideConfigFile: './.eslintrc.prod.js',
+  }),
+],
   module: {
     rules: [
       {
