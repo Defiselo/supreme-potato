@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import {
   BrowserRouter, Route, Routes, useLocation,
 } from 'react-router-dom';
+
 import AllWSlist from './components/allWSlist';
 import Auth401Guard from './components/Auth401Guard';
 import CampaignContactsList from './components/campaignContactsList';
@@ -21,6 +22,10 @@ import Stats from './components/stats';
 import StatsByYears from './components/statsByYears';
 import StatsInvitations from './components/statsInvitations';
 import UrlProvider from './components/UrlProvider';
+
+import ContactList from './components/contactList';
+import MeetList from './components/meetList';
+import WorkshopList from './components/workshoplist';
 
 const AppContentInner = () => {
   const location = useLocation();
@@ -57,6 +62,9 @@ const AppContentInner = () => {
         <Route path="/firm" element={<FirmList />} />
         <Route path="/firm/:firmName" element={<FirmList />} />
         <Route path="/:idFromURL" element={<FirmList />} />
+        <Route path="/contactList/:firmId" element={<ContactList />} />
+        <Route path="/meetList/:firmId" element={<MeetList />} />
+        <Route path="/workshoplist/:firmId" element={<WorkshopList />} />
         <Route path="/events" element={<EventList />} />
         <Route path="/events/:id" element={<EventList />} />
         <Route path="/events/:id/:eventId" element={<EditEventForm />} />
@@ -80,18 +88,17 @@ const AppContentInner = () => {
 };
 
 const AppContent = () => (
-  <BrowserRouter>
     <Auth401Guard>
       <AppContentInner />
     </Auth401Guard>
-  </BrowserRouter>
 
 );
 
 const App = () => (
-  <UrlProvider>
-    <AppContent />
-  </UrlProvider>
+  <BrowserRouter>
+    <UrlProvider>
+      <AppContentInner />
+    </UrlProvider>
+  </BrowserRouter>
 );
-
 export default App;
