@@ -120,7 +120,7 @@ const WorkshopList = () => {
             <tr>
               
               <td>
-              <button type="button" onClick={() => handleEditClick({ firmId })}>Přidat akci</button>
+              <button style={{float: 'left'}} type="button" onClick={() => handleEditClick({ firmId })}>Přidat akci</button>
               </td>
               <td colSpan="2" />
               <td>

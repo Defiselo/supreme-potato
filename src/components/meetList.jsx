@@ -111,6 +111,7 @@ const MeetList = () => {
               <th>Datum a čas</th>
               <th>Poznámka</th>
               <th>Možnosti</th>
+
             </tr>
           </thead>
           <tbody>
@@ -125,7 +126,7 @@ const MeetList = () => {
             ))}
             <tr>
               <td>
-              <button type="button" onClick={() => handleEditClick({ firm_id: firmId })}>Přidat schůzku</button>
+              <button style={{float: 'left'}} type="button" onClick={() => handleEditClick({ firm_id: firmId })}>Přidat schůzku</button>
               </td>
               <td colSpan="1" />
               <td>

@@ -175,7 +175,7 @@ const ContactList = () => {
                 <td colSpan="6" />
                 <td>
                   
-                  <button type="button" className="fn-btn" onClick={() => navigate('/firm')}>
+                  <button style={{float: 'right'}} type="button" className="fn-btn" onClick={() => navigate('/firm')}>
                       ← Zpět na firmy
                   </button>
                 </td>

@@ -12,8 +12,8 @@
     "lint": "npm run eslint && npm run stylelint",
     "stylelint": "stylelint ./src/css/**/*.css --color"
   },
-  "author": "LM",
-  "license": "jen moje",
+  "author": "CKKK",
+  "license": "pro vsechny",
   "homepage": "https://gitlab.com/kurzy/reaktivni-react/",
   "devDependencies": {
     "@eslint/js": "^9.20.0",
