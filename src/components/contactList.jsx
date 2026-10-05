@@ -163,6 +163,7 @@ const ContactList = () => {
                 <td>
                 <button 
                     type="button" 
+                    style={{float: 'left'}}
                     onClick={() => handleEditClick({ 
                       id: null, 
                       firm_id: firmId, 
