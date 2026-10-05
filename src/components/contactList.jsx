@@ -1,15 +1,16 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import axios from 'axios';
-import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import EditContactForm from './editContactForm';
 import Notification from './notification';
 import { useUrl } from './UrlProvider';
 
-const ContactList = ({
-  firmId, firmName, onClose, onSave,
-}) => {
+const ContactList = () => {
+  const { firmId } = useParams();
+  const navigate = useNavigate();
   const { apiUrl } = useUrl();
+
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -18,24 +19,42 @@ const ContactList = ({
 
   useEffect(() => {
     const fetchContacts = async () => {
+      if (!firmId) return;
+      
+      const response = await axios.get(`${apiUrl}contacts/${firmId}`);
+      // Ošetříme, zda server nevrátil chybovou hlášku v objektu
+      if (response.data && response.data.msg && !Array.isArray(response.data)) {
+        setError(response.data.msg);
+      } else {
+        // Pokud je to pole nebo objekt s daty, vezmeme je
+        setContacts(Array.isArray(response.data) ? response.data : (response.data.contacts || response.data.data || []));
+      }
+
       try {
+        setLoading(true);
+        setError(null);
         const response = await axios.get(`${apiUrl}contacts/${firmId}`);
-        if (Array.isArray(response.data) && response.data.length === 0
-        && response.data.msg !== undefined) {
-          setError('Žádné kontakty.');
-        } else {
-          console.log(response.data);
+        
+        // Zde bezpečně ošetříme, co server vrací
+        if (Array.isArray(response.data)) {
           setContacts(response.data);
+          if (response.data.length === 0) {
+            // Můžeš nastavit hlášku nebo nechat prázdné pole
+          }
+        } else if (response.data && response.data.msg) {
+          setError(response.data.msg);
+        } else {
+          setContacts([]);
         }
       } catch (err) {
-        setError(err.message);
+        setError(err.message || 'Chyba při načítání kontaktů');
       } finally {
         setLoading(false);
       }
     };
 
     fetchContacts();
-  }, [firmId, selectedContact]);
+  }, [apiUrl, firmId]); // <-- Opraveno: Odstraněn selectedContact, který mohl způsobit zacyklení
 
   const deleteContact = async (contactId) => {
     try {
@@ -47,10 +66,9 @@ const ContactList = ({
       }
     } catch (err) {
       setError(err.message);
-    } finally {
-      setLoading(false);
     }
   };
+
   const handleClose = () => {
     setSelectedContact(null);
   };
@@ -61,42 +79,33 @@ const ContactList = ({
       deleteContact(contact.id);
     }
   };
+
   const handleEditClick = (contact) => {
-    console.log(contact);
     setSelectedContact(contact);
   };
-  const handleKeyDown = (event) => {
-    if (event.key === 'Escape') {
-      if (!selectedContact) {
-        onClose(null);
-      }
-    }
-  };
-  useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [selectedContact]);
 
   const handleSave = (updatedContact) => {
-    setContacts(contacts.map(
-      (contact) => (contact.id === updatedContact.id ? updatedContact : contact),
-    ));
-    setSelectedContact(null); // Close the form after saving
-    onSave();
+    // Zjištění, zda šlo o úpravu existujícího nebo přidání nového
+    const exists = contacts.some((c) => c.id === updatedContact.id);
+    if (exists) {
+      setContacts(contacts.map(
+        (contact) => (contact.id === updatedContact.id ? updatedContact : contact),
+      ));
+    } else {
+      setContacts([...contacts, updatedContact]);
+    }
+    setSelectedContact(null);
   };
 
   const handleCopy = (inputValue) => {
     navigator.clipboard.writeText(inputValue).then(() => {
       setMsg('Zkopírováno!');
     }).catch((err) => {
-      setError('Chyba při kopírování: ', err);
+      setError('Chyba při kopírování: ' + err);
     });
   };
 
   const Clipboard = (formData) => {
-    console.log(formData);
     const formattedString = formData.filter((item) => item).join(', ');
     handleCopy(formattedString);
   };
@@ -104,30 +113,23 @@ const ContactList = ({
   if (loading) {
     return <p className="no-data">Načítám...</p>;
   }
-  if (error) {
-    return (
-      <p className="no-data">
-        Error:
-        {error}
-      </p>
-    );
-  }
+
   return (
-    <div className={`floating-layer ${!firmId ? 'hidden' : ''}`}>
+    <div className="page-container">
       {msg && (<Notification message={msg} type="edit-firm-success" />)}
       {error && (<Notification message={error} type="edit-firm-error" />)}
+      
       {selectedContact ? (
         <EditContactForm
           contact={selectedContact}
           onSave={handleSave}
           onClose={handleClose}
-          firmName={firmName}
+          firmName=""
         />
       ) : (
         <>
-          <button className="close-button" type="button" onClick={onClose}>X</button>
           <table className="responsive-table">
-            <caption><h3>{`${firmName.split('/(kont)')[0]} - kontakty`}</h3></caption>
+            <caption><h3>Kontakty</h3></caption>
             <thead>
               <tr>
                 <th>Hlavní</th>
@@ -137,8 +139,7 @@ const ContactList = ({
                 <th>E-mail</th>
                 <th>Telefon</th>
                 <th>LinkedIN</th>
-                <th />
-
+                <th>Možnosti</th>
               </tr>
             </thead>
             <tbody>
@@ -148,7 +149,7 @@ const ContactList = ({
                   <td data-label="Aktivní">{contact.active_c === '1' ? '\u2705' : '\u2610'}</td>
                   <td data-label="Foto"><img src={contact.img} alt="" className="kontakt-img" /></td>
                   <td data-label="Jméno">{contact.surname}</td>
-                  <td data-label="E-mail"><a href={`${contact.mailto.replace(/\+/g, ' ')}`}>{contact.email}</a></td>
+                  <td data-label="E-mail"><a href={`${contact.mailto ? contact.mailto.replace(/\+/g, ' ') : '#'}`}>{contact.email}</a></td>
                   <td data-label="Telefon"><a href={`tel:${contact.phone}`}>{contact.phone}</a></td>
                   <td data-label="LinkedIN">{ contact.linkedin ? (<a href={`${contact.linkedin}`}>LinkedIN</a>) : '\u00A0'}</td>
                   <td>
@@ -159,13 +160,26 @@ const ContactList = ({
                 </tr>
               ))}
               <tr>
-                <td />
-                <td />
-                <td />
-                <td />
-                <td />
-                <td />
-                <td><button type="button" onClick={() => handleEditClick({ id: null, firm_id: firmId, main: !contacts.filter((contact) => contact.main === '1').length })}>Přidat kontakt</button></td>
+                <td>
+                <button 
+                    type="button" 
+                    style={{float: 'left'}}
+                    onClick={() => handleEditClick({ 
+                      id: null, 
+                      firm_id: firmId, 
+                      main: !contacts.filter((contact) => contact.main === '1').length 
+                    })}
+                  >
+                    Přidat kontakt
+                  </button>
+                </td>
+                <td colSpan="6" />
+                <td>
+                  
+                  <button style={{float: 'right'}} type="button" className="fn-btn" onClick={() => navigate('/firm')}>
+                      ← Zpět na firmy
+                  </button>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -175,11 +189,14 @@ const ContactList = ({
   );
 };
 
-export default ContactList;
+export class ContactListErrorBoundary extends React.Component {
+  state = { hasError: false };
+  static getDerivedStateFromError() { return { hasError: true }; }
+  componentDidCatch(error, info) { console.error(error, info); }
+  render() {
+    if (this.state.hasError) return <p className="no-data">Něco se pokazilo v komponentě kontaktů.</p>;
+    return this.props.children;
+  }
+}
 
-ContactList.propTypes = {
-  firmId: PropTypes.string.isRequired,
-  onClose: PropTypes.func.isRequired,
-  firmName: PropTypes.string.isRequired,
-  onSave: PropTypes.func.isRequired,
-};
+export default ContactList;

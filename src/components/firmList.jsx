@@ -57,6 +57,7 @@ const FirmList = () => {
   const [selectionText, setSelectionText] = useState('');
   const [lastSelectedIndex, setLastSelectedIndex] = useState(null);
 
+
   const toggleSelectWithShift = (index, id, shiftKey) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
@@ -266,15 +267,23 @@ const FirmList = () => {
     setSelectedFirm(Number(firmId));
   };
 
-  const handleEditContactClick = (id, name) => {
-    console.log(id);
-    setSelectedFirmName(name);
-    setSelectedContact(id);
+const handleEditContactClick = (firmId, name) => {
+    console.log(firmId);
+    // Místo setSelectedContact(id) použijeme navigaci na URL pro kontakty
+    navigate(`/contactList/${firmId}`); 
   };
 
   const handleworkshoplistClick = (firmId, name) => {
-    setSelectedFirmName(name);
-    setSelectedWS(firmId);
+    // Místo setSelectedWS(firmId) použijeme navigaci na URL pro akce/workshopy
+    navigate(`/workshoplist/${firmId}`); 
+  };
+
+    const handleEditEventClick = (id) => {
+    navigate(`/events/${id}`);
+  };
+
+  const handleEditMeetClick = (id, name) => {
+    navigate(`/meetList/${id}`);
   };
 
   const handleRestFilter = (RestData) => {
@@ -314,15 +323,6 @@ const FirmList = () => {
     // ysetSelectedFirmName(name);
     // setSelectedPractice(id);
     navigate(`/practiceListTable/${id}`);
-  };
-
-  const handleEditEventClick = (id) => {
-    navigate(`/events/${id}`);
-  };
-
-  const handleEditMeetClick = (id, name) => {
-    setSelectedFirmName(name);
-    setSelectedMeet(id);
   };
 
   const deleteFirm = async (firmId) => {

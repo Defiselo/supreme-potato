@@ -1,32 +1,30 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import axios from 'axios';
-import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import EditWSForm from './editWSForm';
 import { useUrl } from './UrlProvider';
 import convertDateToCzech from '../utils/czechdates';
 
-const WorkshopList = ({
-  firmId,
-  onSave,
-  firmName,
-  onClose,
-}) => {
+const WorkshopList = () => {
+  const { firmId } = useParams();
+  const navigate = useNavigate();
   const { apiUrl } = useUrl();
+
   const [workshops, setWorkshops] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedContact, setSelectedContact] = useState(null);
+  const [firmName, setFirmName] = useState('');
 
   useEffect(() => {
     const fetchworkshops = async () => {
       try {
+        setLoading(true);
         const response = await axios.get(`${apiUrl}workshops/${firmId}`);
         if (Array.isArray(response.data) && response.data.length === 0) {
-          // setError('errr');
           console.log('WS žádná data');
         } else {
-          console.log(response.data);
           setWorkshops(response.data);
         }
       } catch (err) {
@@ -36,8 +34,10 @@ const WorkshopList = ({
       }
     };
 
-    fetchworkshops();
-  }, [firmId, selectedContact]);
+    if (firmId) {
+      fetchworkshops();
+    }
+  }, [apiUrl, firmId, selectedContact]);
 
   const deleteContact = async (contactId) => {
     try {
@@ -63,94 +63,75 @@ const WorkshopList = ({
   };
 
   const handleEditClick = (ws) => {
-    console.log(ws);
     setSelectedContact(ws);
   };
+
   const handleClose = () => {
     setSelectedContact(null);
   };
+
   const handleSave = (updatedWorkshop) => {
     setWorkshops(workshops.map(
       (workshop) => (workshop.id === updatedWorkshop.id ? updatedWorkshop : workshop),
     ));
-    setSelectedContact(null); // Close the form after saving
+    setSelectedContact(null);
   };
-  const handleKeyDown = (event) => {
-    if (event.key === 'Escape') {
-      if (!selectedContact) {
-        onClose(null);
-      }
-    }
-  };
-  useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [selectedContact]);
 
   if (loading) {
     return <p className="no-data">načítání...</p>;
   }
 
   return (
-
-    <div className={`floating-layer ${!firmId ? 'hidden' : ''}`}>
+    <div className="page-container">
       {error ? (
         <p className="edit-firm-success edit-firm-error">
           Chyba:&nbsp;
           {error}
         </p>
       ) : ''}
-      <button className="close-button" type="button" onClick={onSave}>X</button>
+      
       {selectedContact ? (
         <EditWSForm contact={selectedContact} onSave={handleSave} onClose={handleClose} />
       ) : (
         <table className="responsive-table">
-          <caption><h3>{`Akce s firmou ${firmName.split('/(kont)')[0]}`}</h3></caption>
+          <caption><h3>{`Akce s firmou`}</h3></caption>
           <thead>
             <tr>
               <th className="hidden">ID</th>
               <th>Datum</th>
               <th>Typ</th>
               <th>Poznámka</th>
-              <th />
+              <th>Úpravy</th>
             </tr>
           </thead>
           <tbody>
             {workshops.map((workshop) => (
               <tr key={workshop.id}>
                 <td data-label="ID" className="hidden">{workshop.id}</td>
-                <td data-label="Datum">{convertDateToCzech(workshop.date)}</td>
+                <td data-label="Datum">{workshop.date ? convertDateToCzech(workshop.date) : 'Neuvedeno'}</td>
                 <td data-label="Typ">{workshop.type}</td>
                 <td data-label="Poznámka">{workshop.notes}</td>
                 <td>
                   <button type="button" onClick={() => handleEditClick(workshop)}>Upravit</button>
-                </td>
-                <td>
                   <button type="button" onClick={() => handledelClick(workshop)} className="del-btn">Smazat</button>
                 </td>
               </tr>
             ))}
             <tr>
-              <td />
-              <td />
-              <td />
-              <td />
-              <td><button type="button" onClick={() => handleEditClick({ firmId })}>Přidat akci</button></td>
+              
+              <td>
+              <button style={{float: 'left'}} type="button" onClick={() => handleEditClick({ firmId })}>Přidat akci</button>
+              </td>
+              <td colSpan="2" />
+              <td>
+              <button style={{float: 'right'}} type="button" className="fn-btn" onClick={() => navigate('/firm')}>← Zpět na firmy</button>
+              </td>
             </tr>
           </tbody>
         </table>
       )}
     </div>
   );
-};
-
-WorkshopList.propTypes = {
-  firmId: PropTypes.string,
-  onSave: PropTypes.func.isRequired,
-  firmName: PropTypes.string.isRequired,
-  onClose: PropTypes.func.isRequired,
 };
 
 export default WorkshopList;
