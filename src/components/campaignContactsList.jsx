@@ -85,26 +85,26 @@ const CampaignContactsList = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchContacts = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}getCampaignContacts/${id}`);
-        if (Array.isArray(response.data)) {
-          setContacts(response.data);
-        } else {
-          setIsErrorVisible(error);
-          setError('Neplatná odpověď ze serveru.');
-        }
-      } catch (err) {
-        setIsErrorVisible(error);
-        setError(`Chyba při načítání: ${err.message}`);
-      } finally {
-        setLoading(false);
+  const fetchContacts = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}getCampaignContacts/${id}`);
+      if (Array.isArray(response.data)) {
+        setContacts(response.data);
+      } else {
+        setError('Neplatná odpověď ze serveru.');
+        setIsErrorVisible(true);
       }
-    };
+    } catch (err) {
+      setError(`Chyba při načítání: ${err.message}`);
+      setIsErrorVisible(true);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchContacts();
-  }, [id, isSuccessVisible]);
+  }, [id]);
 
   const handleCheckboxChange = (contactId) => {
     console.log(contactId);
@@ -133,6 +133,8 @@ const CampaignContactsList = () => {
       alert('Vyberte kontakty a status.');
       return;
     }
+    setIsSuccessVisible(false);
+    setIsErrorVisible(false);
     setNewStatus('');
     const url = `${apiUrl}campaignContacts/${id}`;
     const data = {
@@ -141,28 +143,19 @@ const CampaignContactsList = () => {
       status: newStatus,
     };
 
-    axios({
-      method: 'post',
-      url,
-      data,
-    })
+    axios({ method: 'post', url, data })
       .then((response) => {
-        console.log(response.data.msg);
         if (response.data.msg === true) {
           setIsSuccessVisible(true);
-          console.log('překe');
           setSelectedContacts([]);
-          // Volitelně: fetchContacts(); pokud chceš znovu načíst data
+          fetchContacts();
         } else {
-          console.log('Chyba v odpovědi');
           setIsErrorVisible(true);
         }
       })
-      .catch((er) => {
-        console.error('Chyba při ukládání:', er);
-        setIsErrorVisible(true);
-      });
+      .catch(() => setIsErrorVisible(true));
   };
+
   const handleBulkDelete = () => {
     if (selectedContacts.length === 0) {
       return;
