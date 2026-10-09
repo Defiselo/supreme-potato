@@ -287,6 +287,10 @@ const handleEditContactClick = (firmId, name) => {
   };
 
   const handleRestFilter = (RestData) => {
+    if (!RestData) {
+      setRestFilter(false);
+      return;
+    }
     console.log(RestData.show_inactive);
     const params = new URLSearchParams(RestData);
     setRestFilter(params);
