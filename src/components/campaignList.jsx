@@ -5,7 +5,7 @@ import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUrl } from './UrlProvider';
-import isSmall from '../utils/mobileDetect';
+import useIsSmall from '../utils/mobileDetect';
 
 const getFirstPart = (text) => {
   const parts = text?.split(/\/\(kont\)/) || [];
@@ -15,6 +15,7 @@ const getFirstPart = (text) => {
 const CampaignList = () => {
   const [campaigns, setCampaigns] = useState([]);
   const { apiUrl, user } = useUrl();
+  const isSmall = useIsSmall();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -136,7 +137,7 @@ const CampaignList = () => {
               <td>
                 {user.user !== 'reader' ? (
                   <div>
-                    <div className={isSmall() ? 'small-resolution' : ''}>
+                    <div className={isSmall ? 'small-resolution' : ''}>
                       <button type="button" onClick={() => handleEditClick(campaign)}>upravit</button>
                       <button type="button" onClick={() => handleDelClick(campaign.id)} className="del-btn">smazat</button>
                       <a href={`${apiUrl}campaignExport/${campaign.id}/?csvexport`} id="csv_export">CSV export</a>
