@@ -587,7 +587,7 @@ const handleEditContactClick = (firmId, name) => {
               Vymazat výběr
             </button>
             <span style={{ opacity: 0.7 }}>
-              {selectedIds.size > 0 ? `Vybráno: ${selectedIds.size}` : 'Nevybráno nic'}
+              {selectedIds.size > 0 ? `Vybráno: ${(selectedIds.size)/2}` : 'Nevybráno nic'}
             </span>
           </div>
 
@@ -671,7 +671,7 @@ const handleEditContactClick = (firmId, name) => {
               Vymazat výběr
             </button>
             <span>
-              {selectedIds.size > 0 ? `Vybráno: ${selectedIds.size}` : 'Nevybráno nic'}
+              {selectedIds.size > 0 ? `Vybráno: ${(selectedIds.size)/2}` : 'Nevybráno nic'}
             </span>
             {copied && (<Notification message="Zkopírováno do schránky ✓" type="edit-firm-success" />)}
           </div>
