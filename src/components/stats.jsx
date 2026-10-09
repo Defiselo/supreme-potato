@@ -53,7 +53,7 @@ const Stats = () => {
     if (sortConfig.key === key && sortConfig.direction === 'asc') {
       direction = 'desc';
     }
-    const sortedData = [...prevData].sort((a, b) => {
+    const sortedData = [...data].sort((a, b) => {
       if (a[key] < b[key]) {
         return direction === 'asc' ? -1 : 1;
       }
