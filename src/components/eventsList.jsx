@@ -339,6 +339,7 @@ const Events = () => {
             <th>
               <a href={csvURL} id="csv_export">CSV export</a>
             </th>
+            <th>Možnosti</th>
           </tr>
         </thead>
 
@@ -415,6 +416,8 @@ const Events = () => {
                 >
                   Smazat
                 </button>
+                <button type="button" className="fn-btn" onClick={() => navigate('/firm')}>← Zpět na firmy</button>
+
               </td>
             </tr>
           ))}

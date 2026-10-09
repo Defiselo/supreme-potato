@@ -7,6 +7,7 @@ import FileUpload from './fileUpload';
 import Notification from './notification';
 import { useUrl } from './UrlProvider';
 
+
 const EditContactForm = ({
   contact, onSave, firmName, onClose,
 }) => {
