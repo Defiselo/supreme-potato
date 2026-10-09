@@ -765,9 +765,8 @@ const handleEditContactClick = (firmId, name) => {
             <span>
               {selectedIds.size > 0 ? `Vybráno: ${selectedIds.size}` : 'Nevybráno nic'}
             </span>
-            {copied && (<Notification message="Zkopírováno do schránky ✓" type="edit-firm-success" />)}
           </div>
-
+            {copied && (<Notification message="Zkopírováno do schránky ✓" type="edit-firm-success" />)}
         </>
       )}
     </>
