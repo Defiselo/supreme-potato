@@ -7,8 +7,8 @@
     "start:ddev": "API_TARGET=https://lm.ddev.site vite",
     "build": "vite build",
     "preview": "vite preview",
-    "eslint": "eslint --color --config .eslintrc.prod.js --ext .js ./src",
-    "eslintDev": "eslint --color --ext .js ./src",
+    "eslint": "eslint --color --config .eslintrc.prod.js --ext .js,.jsx ./src",
+    "eslintDev": "eslint --color --ext .js,.jsx ./src",
     "lint": "npm run eslint && npm run stylelint",
     "stylelint": "stylelint ./src/css/**/*.css --color"
   },
