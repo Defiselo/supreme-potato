@@ -19,6 +19,7 @@ import { useUrl } from './UrlProvider';
 import WorkshopList from './workshoplist';
 import { setCookie, getCookie, deleteCookie } from '../utils/cookie';
 import useIsSmall from '../utils/mobileDetect';
+import FirmTable from './firmTable';
 
 const getFirstPart = (text) => {
   const parts = text?.split(/\/\(kont\)/) ?? [];
@@ -97,7 +98,7 @@ const FirmList = () => {
     setLastSelectedIndex(null);
   };
 
-  const handlePasteToPage = async () => {
+  const handlePasteToPage = () => {
     // získáme názvy firem podle ID z kompletních dat (prevData)
     const namesById = new Map(prevData.map((item) => [item.id, item.name]));
     const names = Array.from(selectedIds)
@@ -107,13 +108,7 @@ const FirmList = () => {
     setSelectionText(text);
     console.log(text);
     // Volitelné: zkopírovat i do schránky
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 3000);
-    } catch (e) {
-      console.error('Chyba při kopírování do schránky:', e);
-    }
+    // try { navigator.clipboard.writeText(text); } catch (e) {}
   };
 
   const makeHandleFilter = (value, event) => {
@@ -293,10 +288,6 @@ const handleEditContactClick = (firmId, name) => {
   };
 
   const handleRestFilter = (RestData) => {
-    if (!RestData) {
-      setRestFilter(false);
-      return;
-    }
     console.log(RestData.show_inactive);
     const params = new URLSearchParams(RestData);
     setRestFilter(params);
@@ -341,8 +332,6 @@ const handleEditContactClick = (firmId, name) => {
       if (response.status === 200) {
         // fetchData();
         setData((prevFirm) => prevFirm.filter((firm) => firm.id !== firmId));
-        // smazat i z kompletního seznamu, jinak se firma po filtrování vrátí
-        setprevData((prevFirm) => prevFirm.filter((firm) => firm.id !== firmId));
       } else {
         setError('Smazání kontaktu selhalo');
       }
@@ -626,118 +615,31 @@ const handleEditContactClick = (firmId, name) => {
             </div>
           )}
 
-          <table className={`firmlist responsive-table ${isWrapped ? 'wrap-cells' : 'nowrap-cells'}`}>
-            {mappedData.length !== 0 ? '' : (
-              <caption>
-                {mappedData.length}
-                {' '}
-                záznamů
-              </caption>
-            )}
-            <thead>
-              <tr>
-                {/* nový sloupec pro checkboxy */}
-                <th>
-                  <span
-                    onClick={toggleWrap}
-                    style={{
-                      cursor: 'pointer',
-                      fontSize: '1.2em',
-                      paddingLeft: '1em',
-                    }}
-                    title="Přepnout zalamování textu"
-                  >
-                    🔁
-                  </span>
-                  &nbsp;Vybrat
-                </th>
+          {/* ---- Využití znovupoužitelné komponenty tabulky ---- */}
+          <FirmTable
+            mappedData={mappedData}
+            columns={columns}
+            isWrapped={isWrapped}
+            isSmall={isSmall}
+            selectedIds={selectedIds}
+            sortConfig={sortConfig}
+            csvURL={csvURL}
+            user={user}
+            toggleWrap={toggleWrap}
+            toggleSelectWithShift={toggleSelectWithShift}
+            sortByKey={sortByKey}
+            getSortIcon={getSortIcon}
+            addFirmBnt={addFirmBnt}
+            handleEditClick={handleEditClick}
+            handleEditContactClick={handleEditContactClick}
+            handleEditMeetClick={handleEditMeetClick}
+            handleworkshoplistClick={handleworkshoplistClick}
+            handleEditEventClick={handleEditEventClick}
+            handleGiftlistClick={handleGiftlistClick}
+            handlePracticeListClick={handlePracticeListClick}
+            handledelClick={handledelClick}
+          />
 
-                {columns.map((column) => (
-                  <th
-                    key={column}
-                    onClick={() => sortByKey(column)}
-                    className={`col-${column} ${getSortIcon(column) ? 'sorted-colm' : ''}`}
-                  >
-                    {column === 'name' ? (
-                      <>
-                        Firma (
-                        {' '}
-                        {mappedData.length}
-                        {' '}
-                        )
-                        {getSortIcon(column)}
-                      </>
-                    ) : (
-                      `${column} ${getSortIcon(column)}`
-                    )}
-                  </th>
-                ))}
-                <th style={{ 'text-align': 'left' }}>
-                  {addFirmBnt()}
-                  <a href={csvURL} id="csv_export">CSV export</a>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {mappedData.map((row, rowIndex) => (
-                <tr key={row.id} id={`row-${row.name.charAt(0).toLowerCase()}`}>
-                  {/* checkbox sloupec */}
-                  <td key={`sel-${row.id}`}>
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.has(row.id)}
-                      onChange={(e) => {
-                        // podpora z klávesnice (mezerník) – bez shift rozsahu
-                        toggleSelectWithShift(rowIndex, row.id, e.nativeEvent.shiftKey);
-                      }}
-                    />
-                  </td>
-
-                  {columns.map((column) => (
-                    column === 'name' ? (
-                      <td
-                        key={column}
-                        onClick={() => handleEditClick(row.id, row.name)}
-                      >
-                        {(() => {
-                          const parts = row[column]?.split(/\/\(kont\)/) ?? [];
-                          return (
-                            <>
-                              <span className={isWrapped ? 'wrap' : ''}>{parts[0]}</span>
-                              {parts[1] && <span className="col-contacts">{parts[1]}</span>}
-                            </>
-                          );
-                        })()}
-                      </td>
-                    ) : (
-                      <td
-                        key={column}
-                        className={`col-${column} ${getSortIcon(column) ? 'sorted-colm' : ''}`}
-                      >
-                        {row[column]}
-                      </td>
-                    )
-                  ))}
-
-                  <td>
-                    <div className={isSmall ? 'small-resolution' : ''}>
-                      <button type="button" onClick={() => handleEditContactClick(row.id, row.name)}>Kontakty</button>
-                      <button type="button" onClick={() => handleEditMeetClick(row.id, row.name)} className="blue-btn">Schůzky</button>
-                      <button type="button" onClick={() => handleworkshoplistClick(row.id, row.name)}>Akce</button>
-                      <button type="button" onClick={() => handleEditEventClick(row.id, row.name)} className="green-btn">Událost</button>
-                      <button type="button" onClick={() => handleGiftlistClick(row.id, row.name)} className="orange-btn">Dary</button>
-                      <button type="button" onClick={() => handlePracticeListClick(row.id, row.name)} className="purple-btn">Praxe</button>
-                      {user.user !== 'reader' ? (
-                        <button type="button" onClick={() => handledelClick(row.id, row.name)} className="del-btn">Smazat</button>
-                      ) : (
-                        ''
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
           <div
             className="selection-panel"
             style={{
@@ -771,8 +673,9 @@ const handleEditContactClick = (firmId, name) => {
             <span>
               {selectedIds.size > 0 ? `Vybráno: ${selectedIds.size}` : 'Nevybráno nic'}
             </span>
-          </div>
             {copied && (<Notification message="Zkopírováno do schránky ✓" type="edit-firm-success" />)}
+          </div>
+
         </>
       )}
     </>
