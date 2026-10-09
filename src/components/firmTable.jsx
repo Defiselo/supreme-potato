@@ -77,11 +77,8 @@ const FirmTable = ({
               <input
                 type="checkbox"
                 checked={selectedIds.has(row.id)}
-                onClick={(e) => {
-                  toggleSelectWithShift(rowIndex, Number(row.id), e.shiftKey);
-                }}
-                onChange={() => {
-                  toggleSelectWithShift(rowIndex, row.id, false);
+                onChange={(e) => {
+                  toggleSelectWithShift(rowIndex, row.id, e.nativeEvent.shiftKey);
                 }}
               />
             </td>

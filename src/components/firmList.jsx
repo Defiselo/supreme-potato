@@ -98,7 +98,7 @@ const FirmList = () => {
     setLastSelectedIndex(null);
   };
 
-  const handlePasteToPage = () => {
+  const handlePasteToPage = async () => {
     // získáme názvy firem podle ID z kompletních dat (prevData)
     const namesById = new Map(prevData.map((item) => [item.id, item.name]));
     const names = Array.from(selectedIds)
@@ -108,7 +108,13 @@ const FirmList = () => {
     setSelectionText(text);
     console.log(text);
     // Volitelné: zkopírovat i do schránky
-    // try { navigator.clipboard.writeText(text); } catch (e) {}
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 3000);
+    } catch (e) {
+      console.error('Chyba při kopírování do schránky:', e);
+    }
   };
 
   const makeHandleFilter = (value, event) => {
@@ -288,6 +294,10 @@ const handleEditContactClick = (firmId, name) => {
   };
 
   const handleRestFilter = (RestData) => {
+    if (!RestData) {
+      setRestFilter(false);
+      return;
+    }
     console.log(RestData.show_inactive);
     const params = new URLSearchParams(RestData);
     setRestFilter(params);
@@ -332,6 +342,8 @@ const handleEditContactClick = (firmId, name) => {
       if (response.status === 200) {
         // fetchData();
         setData((prevFirm) => prevFirm.filter((firm) => firm.id !== firmId));
+        // smazat i z kompletního seznamu, jinak se firma po filtrování vrátí
+        setprevData((prevFirm) => prevFirm.filter((firm) => firm.id !== firmId));
       } else {
         setError('Smazání kontaktu selhalo');
       }
@@ -587,7 +599,7 @@ const handleEditContactClick = (firmId, name) => {
               Vymazat výběr
             </button>
             <span style={{ opacity: 0.7 }}>
-              {selectedIds.size > 0 ? `Vybráno: ${(selectedIds.size)/2}` : 'Nevybráno nic'}
+              {selectedIds.size > 0 ? `Vybráno: ${(selectedIds.size)}` : 'Nevybráno nic'}
             </span>
           </div>
 
@@ -671,11 +683,10 @@ const handleEditContactClick = (firmId, name) => {
               Vymazat výběr
             </button>
             <span>
-              {selectedIds.size > 0 ? `Vybráno: ${(selectedIds.size)/2}` : 'Nevybráno nic'}
+              {selectedIds.size > 0 ? `Vybráno: ${(selectedIds.size)}` : 'Nevybráno nic'}
             </span>
-            {copied && (<Notification message="Zkopírováno do schránky ✓" type="edit-firm-success" />)}
           </div>
-
+            {copied && (<Notification message="Zkopírováno do schránky ✓" type="edit-firm-success" />)}
         </>
       )}
     </>
