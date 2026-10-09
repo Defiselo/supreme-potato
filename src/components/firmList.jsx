@@ -335,6 +335,8 @@ const handleEditContactClick = (firmId, name) => {
       if (response.status === 200) {
         // fetchData();
         setData((prevFirm) => prevFirm.filter((firm) => firm.id !== firmId));
+        // smazat i z kompletního seznamu, jinak se firma po filtrování vrátí
+        setprevData((prevFirm) => prevFirm.filter((firm) => firm.id !== firmId));
       } else {
         setError('Smazání kontaktu selhalo');
       }
