@@ -140,7 +140,7 @@ const Events = () => {
       direction = 'desc';
     }
 
-    const sorted = [...prevData].sort((a, b) => {
+    const sorted = [...data].sort((a, b) => {
       if (a[key] < b[key]) {
         return direction === 'asc' ? -1 : 1;
       }
