@@ -6,7 +6,7 @@ const apiTarget = process.env.API_TARGET;
 
 export default defineConfig(({ mode }) => ({
   plugins: [react()],
-  base: './',
+  base: '/',
   resolve: {
     alias: {
       Utils: fileURLToPath(new URL('./src/utils', import.meta.url)),
