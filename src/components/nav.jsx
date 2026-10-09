@@ -95,7 +95,7 @@ const nav = () => {
               <NavLink to="/statsByYears" onClick={(e) => handleNavClick(e, '/statsByYears')}>Dle školních let</NavLink>
             </li>
             <li>
-              <a href="/rest.php/stats/export" rel="noreferrer" onClick={closeMenu}>Export do csv</a>
+              <a href={`${url}rest.php/stats/export`} rel="noreferrer" onClick={closeMenu}>Export do csv</a>
             </li>
           </ul>
         </li>
