@@ -40,7 +40,7 @@ const StatsInvitations = () => {
     } else {
       const normalizedValue = value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
       const newFilteredData = data.filter((item) => {
-        const itemName = item.name ? item.name.toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase() : '';
+        const itemName = item.Firma ? item.Firma.toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase() : '';
         return itemName.includes(normalizedValue);
       });
       setData(newFilteredData);
@@ -138,7 +138,7 @@ const StatsInvitations = () => {
                 onClick={() => sortByKey(column)}
                 className={getSortIcon(column) ? 'sorted-colm' : ''}
               >
-                {column === 'name' ? (
+                {column === 'Firma' ? (
                   `Firma (${mappedData.length})`
                 ) : (
                   `${column.replace(/_/g, ' ')} ${getSortIcon(column)}`
