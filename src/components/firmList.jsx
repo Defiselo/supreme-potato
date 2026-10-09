@@ -97,7 +97,7 @@ const FirmList = () => {
     setLastSelectedIndex(null);
   };
 
-  const handlePasteToPage = () => {
+  const handlePasteToPage = async () => {
     // získáme názvy firem podle ID z kompletních dat (prevData)
     const namesById = new Map(prevData.map((item) => [item.id, item.name]));
     const names = Array.from(selectedIds)
@@ -107,7 +107,13 @@ const FirmList = () => {
     setSelectionText(text);
     console.log(text);
     // Volitelné: zkopírovat i do schránky
-    // try { navigator.clipboard.writeText(text); } catch (e) {}
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 3000);
+    } catch (e) {
+      console.error('Chyba při kopírování do schránky:', e);
+    }
   };
 
   const makeHandleFilter = (value, event) => {
@@ -674,15 +680,9 @@ const handleEditContactClick = (firmId, name) => {
                     <input
                       type="checkbox"
                       checked={selectedIds.has(row.id)}
-                      onClick={(e) => {
-                        // e.stopPropagation(); // ať klik na checkbox neotevírá edit
-                        console.log(row.id);
-                        toggleSelectWithShift(rowIndex, Number(row.id), e.shiftKey);
-                        console.log(row.id);
-                      }}
-                      onChange={() => {
+                      onChange={(e) => {
                         // podpora z klávesnice (mezerník) – bez shift rozsahu
-                        toggleSelectWithShift(rowIndex, row.id, false);
+                        toggleSelectWithShift(rowIndex, row.id, e.nativeEvent.shiftKey);
                       }}
                     />
                   </td>
